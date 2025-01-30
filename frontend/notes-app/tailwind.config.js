@@ -12,6 +12,10 @@ export default {
         secondary: '#Ef863E',
         
     },
+    container: {
+      center: true,
+      padding: '1rem', 
+    },
   },
   plugins: [],
 }
