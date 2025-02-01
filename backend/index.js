@@ -122,6 +122,26 @@ app.post('/login', async (req, res) => {
     }
 })
 
+// Get User
+app.get('/get-user', authenticateToken, async (req, res) => {
+    const { user } = req.user;
+
+    const isUser = await User.findOne({ _id: user._id });
+
+    if (!isUser) {
+        return res
+            .status(401)
+            .json({ error: true, message: "User not found" });
+    }
+
+    return res.json({
+        error: false,
+        user: { fullName: isUser.fullName, email: isUser.email, "_id": isUser._id, createdOn: isUser.createdOn },
+        message: "User already exists"
+    });
+
+})
+
 // Add Note 
 app.post('/add-note', authenticateToken, async (req, res) => {
     console.log("req.user:", req.user); // Debugging step
@@ -208,10 +228,10 @@ app.put('/edit-note/:noteId', authenticateToken, async (req, res) => {
 
 // Get All Note 
 app.get('/get-all-notes/', authenticateToken, async (req, res) => {
-    const { user } =req.user;
+    const { user } = req.user;
 
     try {
-        const notes = await Note.find({ userId: user._id}).sort( { isPinned: -1});
+        const notes = await Note.find({ userId: user._id }).sort({ isPinned: -1 });
 
         return res.json({
             error: false,
@@ -221,8 +241,8 @@ app.get('/get-all-notes/', authenticateToken, async (req, res) => {
 
     } catch (error) {
         return res
-           .status(500)
-           .json({
+            .status(500)
+            .json({
                 error: true, message: "Internal Server Error"
             });
     }
@@ -234,14 +254,14 @@ app.delete('/delete-note/:noteId', authenticateToken, async (req, res) => {
     const { user } = req.user;
 
     try {
-        const note = await Note.findOne({ _id: noteId , userId: user._id });
-        
+        const note = await Note.findOne({ _id: noteId, userId: user._id });
+
         if (!note) {
             return res
-               .status(404)
-               .json({ error: true, message: "Note not found" });
+                .status(404)
+                .json({ error: true, message: "Note not found" });
         }
-        
+
         await Note.deleteOne({ _id: noteId, userId: user._id });
 
         return res.json({
@@ -251,8 +271,8 @@ app.delete('/delete-note/:noteId', authenticateToken, async (req, res) => {
 
     } catch (error) {
         return res
-           .status(500)
-           .json({
+            .status(500)
+            .json({
                 error: true, message: "Internal Server Error"
             });
     }
